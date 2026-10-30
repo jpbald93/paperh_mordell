@@ -7,7 +7,7 @@
 
 
 
-**Check:** `lake build && bash gate.sh` prints `PASS (48 declarations, standard axioms only)`;
+**Check:** `lake build && bash gate.sh` prints `PASS (144 declarations, standard axioms only)`;
 `bash tests/tamper.sh` prints `ALL TAMPERING TESTS REJECTED`.
 
 Setting: `t : Affine.Triangle ℝ P` in an arbitrary real inner product space (Euclidean affine space
@@ -54,10 +54,49 @@ projection.
   `G = √Γ`, `T = x_B x_C + x_C x_A + x_A x_B`; the six inner-product identities are
   Gröbner-certified `linear_combination`s (`fermat_alg`); the angle hypotheses give `xᵢ > 0`.
 
+## Layer 13 (blind restatement)
+
+An independent writer, who saw only the plain-English statements of the paper and not this library,
+wrote the theorem statements in Lean on their own (`PaperHBlind.lean`, sha256 beginning
+`e257c271479a928f`). `ErdosMordell/L13Blind.lean` (namespace `ErdosMordell.Blind`) copies the writer's
+definitions and statements 29–36 verbatim. For each one it proves both directions against the library
+theorem: `rb_K` (library → blind) and `br_K` (blind → library).
+
+* All 8 blind statements are proved equivalent to the library in both directions (none jointly): the
+  three key lemmas, Erdős–Mordell, its equality case, Barrow, and the two Fermat–Torricelli statements.
+* `b36_to_exists` records that statement 36 (existence and minimality of the Fermat point) is matched
+  by `fermat_torricelli`, while the existence statement `fermat_exists` alone is weaker.
+* The agreement lemmas show that the writer's distance to a side line, "in the closed triangle",
+  "strictly inside" and "equilateral" are the library's notions by definition.
+* No difference in meaning was found.
+
+## Layer 14 (Mathlib-only restatements and witnesses)
+
+`ErdosMordell/L14.lean` restates every main theorem using only Mathlib notions. The distance to a side
+line becomes `Metric.infDist`, and the barycentric hypotheses become Mathlib's closed interior and
+interior of the triangle (two bridge lemmas). All 9 restatements (`l14_*`) are proved from the library. Five witness
+theorems (`l14w_*`) show on explicit triangles that the hypotheses can be satisfied and the
+inequalities are strict: the 3-4-5 triangle with an interior point, the equilateral triangle with its
+centroid (the equality case), a Barrow configuration with explicit bisector feet, and Fermat-point
+configurations with exact 120° angles.
+
+## Layer 15 (classical statements)
+
+An independent writer also stated the classical theorems in textbook form, using only Mathlib and a few
+elementary definitions (`PaperHClassical.lean`, sha256 beginning `0ac73f94ec9efdb8`).
+`ErdosMordell/L15Classical.lean` (namespace `ErdosMordell.Classical`) copies these definitions
+verbatim and restates each assigned classical statement with its verbatim type as `cov_<name>`.
+
+* All 5 classical statements are proved from the library: Erdős–Mordell (M1a) and its equality case
+  (M1b), Barrow (M2), and the Fermat–Torricelli point (F1a: existence and minimality; F1b: any point
+  seeing the sides at 120° is a minimiser). The library's version of F1b is stronger: it does not need
+  the hypothesis that all angles are below 120°.
+* NEW PROOFS: none were needed. Every classical statement follows directly from a library theorem.
+
 ## Build / gate / tamper
 ```
 lake build
-bash gate.sh            # PASS (48 declarations, standard axioms only)
+bash gate.sh            # PASS (144 declarations, standard axioms only)
 bash tests/tamper.sh    # ALL TAMPERING TESTS REJECTED
 ```
 `gate.sh` rejects `sorry`/`admit`/`native_decide`/`axiom`/`set_option`/syntax extensions, builds
